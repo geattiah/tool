@@ -758,7 +758,7 @@ class Carpe(Frame):
         self.elevation()
         self.reflection()
         
-        plt.show() 
+        #plt.show() 
 
         #shutil.rmtree()
     def delete_dump(self):

@@ -5,6 +5,7 @@
 #ipi install from osgeo import gdal
 import sys
 import os
+import shutil
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -769,14 +770,14 @@ class Carpe(Frame):
         
         plt.show() 
 
-        #shutil.rmtree()
+        
     def delete_dump(self):
-        os.rmdir(process_folder)    
+        shutil.rmtree(process_folder)    
     
     def process(self): 
         self.create_subset()
         self.calculate_index()
-        self.close()
+        #self.quit()
         self.delete_dump()
    
            
@@ -786,7 +787,9 @@ def main():
     root.geometry("700x700+500+100")
     app = Carpe()
     root.mainloop()
+    
 
 
 if __name__ == '__main__':
     main()
+
