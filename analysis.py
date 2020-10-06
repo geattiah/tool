@@ -24,6 +24,8 @@ soilmap = "D:\\carpe_prog_data\\soil\\soilmap.tif"
 elev_res = "D:\\carpe_prog_data\\elevation\\farm_slope_proj_Res.tif"
 rain = pd.read_csv("D:\\carpe_prog_data\\weather\\rain.csv") 
 temp = pd.read_csv("D:\\carpe_prog_data\\weather\\temp.csv") 
+rain_out = dict(zip(rain.Zeitstempel, rain.Wert))
+temp_out = dict(zip(temp.Zeitstempel, temp.Wert))
 
 class Carpe(Frame):
     def __init__(self):
@@ -224,8 +226,9 @@ class Carpe(Frame):
         self.cal()
         self.elevation()
         self.get_soil()
+        self.rain()
         self.stack()
-       
+        
 
     # close the programe
     def close(self):
@@ -249,6 +252,11 @@ class Carpe(Frame):
         
         r = sel_box.get(0,END)
         tiff_dates = [item for item in r]
+        global r_date
+        r_date = r[0]
+        #print(r_date) 
+        #print(r)
+
 
         folder_tiffs = os.listdir(tiff_folder)
         
@@ -371,12 +379,12 @@ class Carpe(Frame):
             if files.endswith('.tif'):
                 filepath_out = os.path.join(ele_interim, files)
 
-                np.seterr(divide='ignore', invalid='ignore')
-
                 with rio.open(filepath_out) as input_raster:
                         bandSlope = input_raster.read(1)
+
+                np.seterr(divide='ignore', invalid='ignore')
                 
-                slope = bandSlope / 1
+                slope = bandSlope / 10
 
                 kwargs = input_raster.meta
                 kwargs.update(
@@ -386,10 +394,6 @@ class Carpe(Frame):
 
                 with rio.open(os.path.join(indices_folder,files[:-4]) + "_" + "SLOPE" + ".tif", 'w', **kwargs) as dst:
                     dst.write_band(1, slope.astype(rio.float32))
-
-
-
-
 
     def get_soil(self):
         cropfiles = [item for item in shape_name]
@@ -424,11 +428,11 @@ class Carpe(Frame):
             if files.endswith('.tif'):
                 filepath_out = os.path.join(soil_interim, files)
 
-                np.seterr(divide='ignore', invalid='ignore')
-
                 with rio.open(filepath_out) as input_raster:
                         bandSoil = input_raster.read(1)
-                
+
+                np.seterr(divide='ignore', invalid='ignore')
+
                 soil = bandSoil / 1
 
                 kwargs = input_raster.meta
@@ -440,9 +444,32 @@ class Carpe(Frame):
                 with rio.open(os.path.join(indices_folder,files[:-4]) + "_" + "SOIL" + ".tif", 'w', **kwargs) as dst:
                     dst.write_band(1, soil.astype(rio.float32))
 
-
+    def rain(self):
+        rain_val = rain_out[int(r_date)]
+        temp_val = temp_out[int(r_date)]
+        for files in os.listdir(tiff_allbands_folder):
+            if files.endswith('.tif'):
+                filepath_out = os.path.join(tiff_allbands_folder, files)
+                with rio.open(filepath_out) as input_raster:
+                    bandClim = input_raster.read(1)  
                 
-            
+                np.seterr(divide='ignore', invalid='ignore')
+
+                rainfall = bandClim - bandClim + rain_val
+                temperature = bandClim - bandClim + temp_val
+
+                kwargs = input_raster.meta
+                kwargs.update(
+                    dtype=rio.float32,
+                    count=1,
+                    compress='lzw')
+
+                with rio.open(os.path.join(indices_folder,files[:-4]) + "_" + "RAIN" + ".tif", 'w', **kwargs) as dst:
+                    dst.write_band(1, rainfall.astype(rio.float32))
+
+                with rio.open(os.path.join(indices_folder,files[:-4]) + "_" + "TEMP" + ".tif", 'w', **kwargs) as dst:
+                    dst.write_band(1, temperature.astype(rio.float32))
+               
      
     def stack(self):
         global stack_folder  
@@ -464,29 +491,39 @@ class Carpe(Frame):
             for id, layer in enumerate(list, start=1):
                 with rio.open(layer) as src1:
                     dst.write_band(id, src1.read(1))
-
-    def equ1(self):
-        stackfile = os.path.join(stack_folder, stack.tif )
-        with rio.open(stackfile) as input_raster:
-            lai = input_raster.read(1)
-            ndmi = input_raster.read(2)
-            ndvi = input_raster.read(3)
-            slope = input_raster.read(4)
-            soil = input_raster.read(5)
-            
- 
-
-
-
-
-
-
-def main():
+        
+        #return stack_folder
+        #print(stack_folder)
+    
+def run():
     global root
     root = Tk()
     root.geometry("700x700+500+100")
     app = Carpe()
     root.mainloop()
+
+
+class analysis(Carpe):
+    def __init__(self):
+        self.equ1()
+
+    def equ1(self):
+        Carpe.stack
+        stackfile = os.path.join(stack_folder, 'stack.tif' )
+        with rio.open(stackfile) as input_raster:
+            lai = input_raster.read(1)
+            ndmi = input_raster.read(2)
+            ndvi = input_raster.read(3)
+            rain = input_raster.read(4)
+            temp = input_raster.read(5)
+            slope = input_raster.read(6)
+            soil = input_raster.read(7)  
+
+        print("me")       
+
+def main():
+    run()
+    analysis()
 
 
 if __name__ == '__main__':
