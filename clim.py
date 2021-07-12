@@ -15,7 +15,7 @@ rain = pd.read_csv("D:\\carpe_prog_data\\weather\\rain.csv")
 temp = pd.read_csv("D:\\carpe_prog_data\\weather\\temp.csv") 
 
 rain_out = dict(zip(temp.Zeitstempel, temp.Wert))
-print(rain_out)
+print(rain)
 
 
 print(temp)

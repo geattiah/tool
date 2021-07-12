@@ -23,9 +23,9 @@ from rasterio.mask import mask
 
 
 #Define folder locations
-tiff_folder = "D:\\tiffs"  #"/home/gift/Dropbox/carpe_data/tiffs"
-shapefile_folder = "D:\\farms" #/home/gift/Dropbox/carpe_data/shapes"
-#processing_folder = #"/home/gift/Dropbox/carpe_data/georef_tiffs"
+tiff_folder = "/home/gift/Dropbox/carpe_data/tiffs"
+shapefile_folder = "/home/gift/Dropbox/carpe_data/shapes"
+#processing_folder = "/home/gift/Dropbox/carpe_data/georef_tiffs"
 
 class Carpe(Frame):
     def __init__(self):

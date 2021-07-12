@@ -228,6 +228,7 @@ class Carpe(Frame):
         self.get_soil()
         self.rain()
         self.stack()
+        self.equ1()
         
 
     # close the programe
@@ -494,21 +495,7 @@ class Carpe(Frame):
         
         #return stack_folder
         #print(stack_folder)
-    
-def run():
-    global root
-    root = Tk()
-    root.geometry("700x700+500+100")
-    app = Carpe()
-    root.mainloop()
-
-
-class analysis(Carpe):
-    def __init__(self):
-        self.equ1()
-
     def equ1(self):
-        Carpe.stack
         stackfile = os.path.join(stack_folder, 'stack.tif' )
         with rio.open(stackfile) as input_raster:
             lai = input_raster.read(1)
@@ -517,14 +504,49 @@ class analysis(Carpe):
             rain = input_raster.read(4)
             temp = input_raster.read(5)
             slope = input_raster.read(6)
-            soil = input_raster.read(7)  
+            soil = input_raster.read(7) 
 
-        print("me")       
+        cmap="RdYlBu_r"
+        plt.imshow(temp, cmap=cmap)
+        plt.colorbar().set_label('Temperature (°C)')
+        plt.show()
+
+        cmap="RdYlGn"
+        plt.imshow(ndvi, cmap=cmap)
+        plt.colorbar().set_label('NDVI')
+        plt.show()
+      
+        cmap="Blues"
+        plt.imshow(ndmi, cmap=cmap)
+        plt.colorbar().set_label('NDMI')
+        plt.show()
+
+        cmap="Blues"
+        plt.imshow(rain, cmap=cmap)
+        plt.colorbar().set_label('Rain')
+        plt.show()
+
+        cmap="gray"
+        plt.imshow(slope, cmap=cmap)
+        plt.colorbar().set_label('Slope')
+        plt.show()
+
+        cmap="RdYlGn_r"
+        plt.imshow(soil)
+        plt.colorbar().set_label('Soil')
+        plt.show()
+
+def run():
+    global root
+    root = Tk()
+    root.geometry("700x700+500+100")
+    app = Carpe()
+    root.mainloop()
+
+  
 
 def main():
     run()
-    analysis()
-
 
 if __name__ == '__main__':
     main()
